@@ -19,76 +19,86 @@ const MathVisualization: React.FC<MathVisualizationProps> = ({ type, problemId, 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    canvas.width = 400;
-    canvas.height = 400;
+    // Set canvas size only once or when problem changes
+    if (canvas.width !== 400 || canvas.height !== 400) {
+      canvas.width = 400;
+      canvas.height = 400;
+    }
+
+    let animationId: number;
+    let localStep = animationStep;
 
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
       switch (type) {
         case 'percentage':
-          drawPercentageVisualization(ctx, canvas, animationStep, showSolution);
+          drawPercentageVisualization(ctx, canvas, localStep, showSolution);
           break;
         case 'workers':
-          drawWorkersVisualization(ctx, canvas, animationStep, showSolution);
+          drawWorkersVisualization(ctx, canvas, localStep, showSolution);
           break;
         case 'equation':
-          drawEquationVisualization(ctx, canvas, animationStep, showSolution);
+          drawEquationVisualization(ctx, canvas, localStep, showSolution);
           break;
         case 'parabola':
-          drawParabolaVisualization(ctx, canvas, animationStep, showSolution);
+          drawParabolaVisualization(ctx, canvas, localStep, showSolution);
           break;
         case 'triangle':
-          drawTriangleVisualization(ctx, canvas, animationStep, showSolution);
+          drawTriangleVisualization(ctx, canvas, localStep, showSolution);
           break;
         case 'circle':
-          drawCircleVisualization(ctx, canvas, animationStep, showSolution);
+          drawCircleVisualization(ctx, canvas, localStep, showSolution);
           break;
         case 'dice':
-          drawDiceVisualization(ctx, canvas, animationStep, showSolution);
+          drawDiceVisualization(ctx, canvas, localStep, showSolution);
           break;
         case 'function':
-          drawFunctionVisualization(ctx, canvas, animationStep, showSolution);
+          drawFunctionVisualization(ctx, canvas, localStep, showSolution);
           break;
         case 'rectangle':
-          drawRectangleVisualization(ctx, canvas, animationStep, showSolution);
+          drawRectangleVisualization(ctx, canvas, localStep, showSolution);
           break;
         case 'exponential':
-          drawExponentialVisualization(ctx, canvas, animationStep, showSolution);
+          drawExponentialVisualization(ctx, canvas, localStep, showSolution);
           break;
         case 'average':
-          drawAverageVisualization(ctx, canvas, animationStep, showSolution);
+          drawAverageVisualization(ctx, canvas, localStep, showSolution);
           break;
         case 'polygon':
-          drawPolygonVisualization(ctx, canvas, animationStep, showSolution);
+          drawPolygonVisualization(ctx, canvas, localStep, showSolution);
           break;
         case 'tank':
-          drawTankVisualization(ctx, canvas, animationStep, showSolution);
+          drawTankVisualization(ctx, canvas, localStep, showSolution);
           break;
         case 'cube':
-          drawCubeVisualization(ctx, canvas, animationStep, showSolution);
+          drawCubeVisualization(ctx, canvas, localStep, showSolution);
           break;
         case 'balls':
-          drawBallsVisualization(ctx, canvas, animationStep, showSolution);
+          drawBallsVisualization(ctx, canvas, localStep, showSolution);
           break;
         case 'trigonometry':
-          drawTrigonometryVisualization(ctx, canvas, animationStep, showSolution);
+          drawTrigonometryVisualization(ctx, canvas, localStep, showSolution);
           break;
         case 'sequence':
-          drawSequenceVisualization(ctx, canvas, animationStep, showSolution);
+          drawSequenceVisualization(ctx, canvas, localStep, showSolution);
           break;
         default:
-          drawDefaultVisualization(ctx, canvas, animationStep, showSolution);
+          drawDefaultVisualization(ctx, canvas, localStep, showSolution);
       }
+      
+      localStep = (localStep + 1) % 360;
+      animationId = requestAnimationFrame(animate);
     };
 
-    const animationInterval = setInterval(() => {
-      setAnimationStep(prev => (prev + 1) % 360);
-      animate();
-    }, 50);
+    animate();
 
-    return () => clearInterval(animationInterval);
-  }, [type, animationStep, showSolution, problemId]);
+    return () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+    };
+  }, [type, showSolution, problemId]);
 
   return (
     <motion.div 
